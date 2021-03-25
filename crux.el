@@ -397,15 +397,16 @@ there's a region, all lines that region covers will be duplicated."
   (pcase-let* ((origin (point))
                (`(,beg . ,end) (crux-get-positions-of-line-or-region))
                (region (buffer-substring-no-properties beg end)))
-    (comment-or-uncomment-region beg end)
-    (setq end (line-end-position))
+
+    (setq new-end (line-end-position))
     (dotimes (_ arg)
-      (goto-char end)
+      (goto-char new-end)
       (unless (use-region-p)
         (newline))
       (insert region)
-      (setq end (point)))
-    (goto-char (+ origin (* (length region) arg) arg))))
+      (setq new-end (point)))
+    (goto-char (+ origin (* (length region) arg) (if (use-region-p) 0 arg)))
+    (comment-or-uncomment-region beg end)))
 
 ;;;###autoload
 (defun crux-rename-file-and-buffer ()
